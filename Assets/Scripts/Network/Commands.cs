@@ -1,5 +1,6 @@
-﻿public enum Commands : byte {
-    
+﻿public enum Commands : byte
+{
+
     RESERVED = 0b00000000,
     PLAYER_CONNECT = 0b00000001,
     PLAYER_DISCONNECT = 0b00000010,

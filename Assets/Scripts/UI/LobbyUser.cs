@@ -12,12 +12,16 @@ public class LobbyUser : MonoBehaviour
     void Start()
     {
         var text = Instantiate(Text, content);
-        Instantiate(Text, content);
-        Instantiate(Text, content);
-
         text.GetComponent<Text>().text = "Test";
 
         button.GetComponent<Button>().onClick.AddListener(StartGame);
+    }
+
+    public void AddPlayer((string NetworkID, string Username, string Ip) player)
+    {
+        var text = Instantiate(Text, content);
+        text.GetComponent<Text>().text = player.Username + "[" + player.NetworkID + "] (" + player.Ip + ")";
+
     }
 
     // Update is called once per frame

@@ -7,13 +7,17 @@ using UnityEngine;
 
 public class JoinRoomHandler : MonoBehaviour, ServerNetworkEventHandler
 {
-    public NetworkEvent Handle(Server server, NetworkEvent e, Network.NetworkPlayer player)
+    public NetworkEvent Handle(Server server, NetworkEvent e, NetworkPlayer player)
     {
         JoinRoomEvent jre = (JoinRoomEvent)e;
         player.Username = jre.username;
-        
-        server.Send()
 
+        Debug.Log(jre);
+
+        server.Send(new JoinedRoomEvent(player.NetworkID, server.clientList).Serialize(), player.Ip);
+
+        server.SendOthers(new PlayerJoinedRoomEvent(player.NetworkID, player.Username).Serialize(), player.Ip);
+        
         return null;
     }
 
