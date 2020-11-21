@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: -2449044635000225476}
   m_Layer: 0
   m_Name: Tank
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -125,8 +125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 330495f12415e1f41afb81645884f0f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 5
-  rotationSpeed: 2
   bullet: {fileID: 7551739586076586575, guid: 87a2587d282ff7a499bde8f53c83c09d, type: 3}
 --- !u!50 &7025079250339378860
 Rigidbody2D:
@@ -161,9 +159,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 631048eca275c8e429b71a6a7504b1ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NetworkID: 0
-  Username: 
-  connected: 0
+  isOwner: 0
+  x: 0
+  y: 0
 --- !u!1 &5431606380329975545
 GameObject:
   m_ObjectHideFlags: 0

@@ -8,16 +8,12 @@ public class PlayerControl : MonoBehaviour
 {
 
     private float _currentSpeed;
-    private Rigidbody2D _playerRigidbody2D;
 
-    public int speed = 5;
-    public int rotationSpeed = 5;
     public GameObject bullet;
 
 
     void Start()
     {
-        _playerRigidbody2D = GetComponent<Rigidbody2D>();
     }
 
     private void Update()
@@ -30,15 +26,6 @@ public class PlayerControl : MonoBehaviour
 
     private void Move(int acceleration, int rotation)
     {
-        Vector2 speedForce = transform.up * (acceleration * speed);
-
-        transform.Rotate(new Vector3(0, 0, rotation * rotationSpeed));
-
-        _playerRigidbody2D.velocity = speedForce;
-
-        if (acceleration == 0)
-            _playerRigidbody2D.velocity = Vector2.zero;
-
         if (Input.GetButtonDown("Fire1"))
             Fire();
     }

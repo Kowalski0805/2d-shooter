@@ -14,6 +14,20 @@ namespace Assets.Scripts.Network.Handlers
         public NetworkEvent Handle(Client client, NetworkEvent e)
         {
             // TODO: implement
+            PlayerPositionedEvent ppe = (PlayerPositionedEvent)e;
+
+            for (int i = 0; i < ppe.coords.Count; i++)
+            {
+                var player = ppe.coords[i];
+
+                client._ExecuteOnMainThread.RunOnMainThread.Enqueue(() =>
+                {
+                    PlayerNetwork pn = GameObject.FindGameObjectWithTag("GameManager").GetComponent<PlayerNetwork>();
+
+                    pn.Control(i, player.x, player.y, player.rot);
+                });
+            }
+
             return null;
         }
     }

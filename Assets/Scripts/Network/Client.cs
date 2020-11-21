@@ -15,6 +15,7 @@ public class Client : MonoBehaviour
 
     public List<NetworkData> clientList = new List<NetworkData>();
     public Dictionary<Type, ClientNetworkEventHandler> handlers;
+    public ExecuteOnMainThread _ExecuteOnMainThread;
 
     public void Start()
     {
@@ -37,6 +38,7 @@ public class Client : MonoBehaviour
         };
 
         _udp = new UdpClient();
+        _ExecuteOnMainThread = GameObject.FindGameObjectWithTag("MainThread").GetComponent<ExecuteOnMainThread>();
 
         DontDestroyOnLoad(this);
     }

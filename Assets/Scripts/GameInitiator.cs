@@ -13,7 +13,7 @@ public class GameInitiator : MonoBehaviour
         client.clientList.ForEach(c =>
         {
             var p = Instantiate(playerPrefab);
-            var spawners = GameObject.FindGameObjectsWithTag("spawner");
+            var spawners = GameObject.FindGameObjectsWithTag("Spawner");
             p.transform.position = spawners[c.NetworkID].transform.position;
             if (c.NetworkID == client.id)
             {

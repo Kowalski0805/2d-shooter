@@ -4,8 +4,8 @@ namespace Assets.Scripts.Network.Events
 {
     public class PlayerPositionEvent : NetworkEvent
     {
-        int x = 0;
-        int y = 0;
+        public int x = 0;
+        public int y = 0;
 
         public PlayerPositionEvent() { }
 

@@ -11,9 +11,12 @@ public class PlayerLoadHandler : MonoBehaviour, ServerNetworkEventHandler
     {
         player.connected = true;
 
-        if (server.clientList.TrueForAll(p => p.connected))
+        if (server.clientList.TrueForAll(p => p.connected || p.Username == null))
         {
-            server.SendToAll(new PlayerLoadedEvent().Serialize());
+            server._ExecuteOnMainThread.RunOnMainThread.Enqueue(() => {
+                GameObject.FindGameObjectWithTag("PlayerManager").GetComponent<PlayerManager>().enabled = true;
+                server.SendToAll(new PlayerLoadedEvent().Serialize());
+            });
         }
 
         return null;

@@ -19,6 +19,7 @@ public class Server : MonoBehaviour
     private bool _serverRunning = true;
     public List<NetworkData> clientList = new List<NetworkData>(4);
     public Dictionary<Type, ServerNetworkEventHandler> handlers;
+    public ExecuteOnMainThread _ExecuteOnMainThread;
 
     private int _count = 0;
 
@@ -48,6 +49,8 @@ public class Server : MonoBehaviour
             clientList.Add(player);
         }
 
+        _ExecuteOnMainThread = GameObject.FindGameObjectWithTag("MainThread").GetComponent<ExecuteOnMainThread>();
+
         _server = new UdpClient(25575);
         new Thread(ServerThread).Start();
     }
@@ -68,8 +71,11 @@ public class Server : MonoBehaviour
                 //Debug.Log(Encoding.UTF8.GetString(data));
                 //if (!Encoding.UTF8.GetString(data).Equals("init"))
                 //    continue;
-                if (!clientList.Exists(c => c.Ip == clientIP))
+                Debug.Log(clientIP.Port);
+                if (!clientList.Exists(c => Equals(c.Ip?.Address, clientIP.Address) && Equals(c.Ip?.Port, clientIP.Port)))
                 {
+                    if (_count >= 4)
+                        Debug.LogError("More than 4");
                     Debug.Log("Create player");
                     Debug.Log(clientList.Select(er => er.NetworkID.ToString()).Aggregate((a, b) => a + ", " + b));
                     //NetworkPlayer new_player = Instantiate(playerPrefab).GetComponent<NetworkPlayer>();
@@ -81,7 +87,8 @@ public class Server : MonoBehaviour
                     _count++;
                 }
 
-                NetworkData player = clientList.Find(c => c.Ip == clientIP);
+                NetworkData player = clientList.Find(c => Equals(c.Ip?.Address, clientIP.Address) && c.Ip?.Port == clientIP.Port);
+                // player.Ip = clientIP;
                 NetworkEvent e = ReceiveEvent(data);
                 Debug.Log("Get event " + e.GetType().ToString());
 

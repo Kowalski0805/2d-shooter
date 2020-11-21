@@ -6,7 +6,7 @@ namespace Assets.Scripts.Network.Events
 {
     public class PlayerPositionedEvent : NetworkEvent
     {
-        List<(float x, float y, float rot)> coords;
+        public List<(float x, float y, float rot)> coords;
 
         public PlayerPositionedEvent() { }
 
