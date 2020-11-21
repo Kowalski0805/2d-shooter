@@ -9,7 +9,7 @@ namespace Assets.Scripts.Network.Handlers
 {
     public interface ServerNetworkEventHandler
     {
-        NetworkEvent Handle(Server server, NetworkEvent e, NetworkPlayer player);
+        NetworkEvent Handle(Server server, NetworkEvent e, NetworkData player);
     }
 
     public interface ClientNetworkEventHandler

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.Network.Events;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,22 +7,19 @@ using UnityEngine.UI;
 public class LobbyUser : MonoBehaviour
 {
     public Transform content;
-    public GameObject Text;
     public GameObject button;
+    public GameObject[] playerTexts;
 
     void Start()
     {
-        var text = Instantiate(Text, content);
-        text.GetComponent<Text>().text = "Test";
-
         button.GetComponent<Button>().onClick.AddListener(StartGame);
     }
 
-    public void AddPlayer((string NetworkID, string Username, string Ip) player)
+    public void AddPlayer(NetworkData player)
     {
-        var text = Instantiate(Text, content);
-        text.GetComponent<Text>().text = player.Username + "[" + player.NetworkID + "] (" + player.Ip + ")";
-
+        var text = playerTexts[player.NetworkID];
+        var component = text.GetComponent<Text>();
+        component.text = player.Username + "[" + player.NetworkID + "]";
     }
 
     // Update is called once per frame
@@ -30,13 +28,13 @@ public class LobbyUser : MonoBehaviour
         
     }
 
-    void ActivateButton()
+    public void ActivateButton()
     {
         button.SetActive(true);
     }
 
-    void StartGame() { 
-        
+    void StartGame() {
+        FindObjectOfType<Client>().SendEvent(new GameStartEvent());
     }
 
 }

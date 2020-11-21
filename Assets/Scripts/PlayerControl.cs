@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Assets.Scripts.Network.Events;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -21,9 +22,14 @@ public class PlayerControl : MonoBehaviour
 
     private void Update()
     {
-        var acceleration = Input.GetAxis("Vertical");
-        var rotation = -Input.GetAxis("Horizontal");
+        int acceleration = (int) Input.GetAxis("Vertical");
+        int rotation = (int) -Input.GetAxis("Horizontal");
 
+        GameObject.FindGameObjectWithTag("NetworkManager").GetComponent<Client>().SendEvent(new PlayerPositionEvent(acceleration, rotation));
+    }
+
+    private void Move(int acceleration, int rotation)
+    {
         Vector2 speedForce = transform.up * (acceleration * speed);
 
         transform.Rotate(new Vector3(0, 0, rotation * rotationSpeed));

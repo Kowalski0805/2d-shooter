@@ -13,7 +13,7 @@ public class Client : MonoBehaviour
     private UdpClient _udp;
     public int id;
 
-    public List<(string NetworkID, string Username, string Ip)> clientList = new List<(string, string, string)>();
+    public List<NetworkData> clientList = new List<NetworkData>();
     public Dictionary<Type, ClientNetworkEventHandler> handlers;
 
     public void Start()
@@ -21,12 +21,24 @@ public class Client : MonoBehaviour
         Debug.Log("Starting client");
 
         handlers = new Dictionary<Type, ClientNetworkEventHandler>() {
-            { typeof(JoinedRoomEvent), FindObjectOfType<JoinedRoomHandler>() }
+            { typeof(BoostEndEvent), FindObjectOfType<BoostEndHandler>() },
+            { typeof(BoostSpawnEvent), FindObjectOfType<BoostSpawnHandler>() },
+            { typeof(BoostUsedEvent), FindObjectOfType<BoostUsedHandler>() },
+            { typeof(BulletSpawnedEvent), FindObjectOfType<BulletSpawnedHandler>() },
+            { typeof(GameStartedEvent), FindObjectOfType<GameStartedHandler>() },
+            { typeof(PingEvent), FindObjectOfType<PingHandler>() },
+            { typeof(PlayerDamageEvent), FindObjectOfType<PlayerDamageHandler>() },
+            { typeof(PlayerDeathEvent), FindObjectOfType<PlayerDeathHandler>() },
+            { typeof(PlayerDisconnectedEvent), FindObjectOfType<PlayerDisconnectedHandler>() },
+            { typeof(PlayerLoadedEvent), FindObjectOfType<PlayerLoadedHandler>() },
+            { typeof(PlayerPositionedEvent), FindObjectOfType<PlayerPositionedHandler>() },
+            { typeof(RoomJoinedEvent), FindObjectOfType<RoomJoinedHandler>() },
+            { typeof(RoomPlayerJoinedEvent), FindObjectOfType<RoomPlayerJoinedHandler>() },
         };
 
         _udp = new UdpClient();
 
-        //DontDestroyOnLoad(this);
+        DontDestroyOnLoad(this);
     }
 
     public void Connect(string address, string username)
@@ -34,7 +46,7 @@ public class Client : MonoBehaviour
         Debug.Log("Connecting");
 
         _udp.Connect(address, 25575);
-        Send(new JoinRoomEvent(username).Serialize());
+        Send(new RoomJoinEvent(username).Serialize());
         while (true)
         {
             Debug.Log("Wait for response");
@@ -77,12 +89,32 @@ public class Client : MonoBehaviour
         byte eventType = data[0];
         switch (eventType)
         {
-            case (byte)Commands.JOINED_ROOM:
-                return new JoinedRoomEvent().CreateEvent(data);
-            case (byte)Commands.POSITION_INFO:
-                return new PlayerPositionEvent().CreateEvent(data);
+            case (byte)Commands.BOOST_END:
+                return new BoostEndEvent().CreateEvent(data);
+            case (byte)Commands.BOOST_SPAWN:
+                return new BoostSpawnEvent().CreateEvent(data);
+            case (byte)Commands.BOOST_USED:
+                return new BoostUsedEvent().CreateEvent(data);
+            case (byte)Commands.BULLET_SPAWNED:
+                return new BulletSpawnedEvent().CreateEvent(data);
+            case (byte)Commands.GAME_STARTED:
+                return new GameStartedEvent().CreateEvent(data);
+            case (byte)Commands.PING:
+                return new PingEvent().CreateEvent(data);
             case (byte)Commands.PLAYER_DAMAGE:
                 return new PlayerDamageEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_DEATH:
+                return new PlayerDeathEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_DISCONNECTED:
+                return new PlayerDisconnectedEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_LOADED:
+                return new PlayerLoadedEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_POSITIONED:
+                return new PlayerPositionedEvent().CreateEvent(data);
+            case (byte)Commands.ROOM_JOINED:
+                return new RoomJoinedEvent().CreateEvent(data);
+            case (byte)Commands.ROOM_PLAYER_JOINED:
+                return new RoomPlayerJoinedEvent().CreateEvent(data);
             default:
                 return null;
         }

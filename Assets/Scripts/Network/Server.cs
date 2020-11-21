@@ -17,7 +17,7 @@ public class Server : MonoBehaviour
 
     private UdpClient _server;
     private bool _serverRunning = true;
-    public List<NetworkPlayer> clientList = new List<NetworkPlayer>(4);
+    public List<NetworkData> clientList = new List<NetworkData>(4);
     public Dictionary<Type, ServerNetworkEventHandler> handlers;
 
     private int _count = 0;
@@ -26,14 +26,26 @@ public class Server : MonoBehaviour
         Debug.Log("Starting server");
 
         handlers = new Dictionary<Type, ServerNetworkEventHandler>() {
-            { typeof(JoinRoomEvent), FindObjectOfType<JoinRoomHandler>() }
+            { typeof(BoostUseEvent), FindObjectOfType<BoostUseHandler>() },
+            { typeof(BulletSpawnEvent), FindObjectOfType<BulletSpawnHandler>() },
+            { typeof(GameStartEvent), FindObjectOfType<GameStartHandler>() },
+            { typeof(PlayerDisconnectEvent), FindObjectOfType<PlayerDisconnectHandler>() },
+            { typeof(PlayerLoadEvent), FindObjectOfType<PlayerLoadHandler>() },
+            { typeof(PlayerPositionEvent), FindObjectOfType<PlayerPositionHandler>() },
+            { typeof(PongEvent), FindObjectOfType<PongHandler>() },
+            { typeof(RoomJoinEvent), FindObjectOfType<RoomJoinHandler>() },
         };
 
         for (int i = 0; i < 4; i++)
         {
-            NetworkPlayer p = Instantiate(playerPrefab).GetComponent<NetworkPlayer>();
-            p.NetworkID = i;
-            clientList.Add(p);
+            NetworkData player = new NetworkData();
+            var spawners = GameObject.FindGameObjectsWithTag("Spawner");
+            var p = Instantiate(playerPrefab);
+            p.transform.position = spawners[i].transform.position;
+            var np = p.GetComponent<NetworkPlayer>();
+            player.NetworkID = i;
+            player.player = np;
+            clientList.Add(player);
         }
 
         _server = new UdpClient(25575);
@@ -56,20 +68,20 @@ public class Server : MonoBehaviour
                 //Debug.Log(Encoding.UTF8.GetString(data));
                 //if (!Encoding.UTF8.GetString(data).Equals("init"))
                 //    continue;
-                if (!clientList.Exists(c => c.Ip?.Address?.ToString() == clientIP.Address.ToString()))
+                if (!clientList.Exists(c => c.Ip == clientIP))
                 {
                     Debug.Log("Create player");
                     Debug.Log(clientList.Select(er => er.NetworkID.ToString()).Aggregate((a, b) => a + ", " + b));
                     //NetworkPlayer new_player = Instantiate(playerPrefab).GetComponent<NetworkPlayer>();
                     //clientList.Add(new_player);
-                    NetworkPlayer new_player = clientList[_count];
+                    NetworkData new_player = clientList[_count];
                     new_player.Ip = clientIP;
                     new_player.NetworkID = _count;
 
                     _count++;
                 }
 
-                NetworkPlayer player = clientList.Find(c => c.Ip?.Address?.ToString() == clientIP.Address.ToString());
+                NetworkData player = clientList.Find(c => c.Ip == clientIP);
                 NetworkEvent e = ReceiveEvent(data);
                 Debug.Log("Get event " + e.GetType().ToString());
 
@@ -120,7 +132,11 @@ public class Server : MonoBehaviour
     {
         foreach (var client in clientList)
         {
-            if (client.Ip != null && client.Ip != except) _server.Send(data, data.Length, client.Ip);
+            if (client.Ip != null && client.Ip != except)
+            {
+                Debug.Log("Send");
+                _server.Send(data, data.Length, client.Ip);
+            }
         }
     }
 
@@ -155,12 +171,22 @@ public class Server : MonoBehaviour
         byte eventType = data[0];
         switch (eventType)
         {
-            case (byte)Commands.JOIN_ROOM:
-                return new JoinRoomEvent().CreateEvent(data);
-            case (byte)Commands.POSITION_INFO:
+            case (byte)Commands.BOOST_USE:
+                return new BoostUseEvent().CreateEvent(data);
+            case (byte)Commands.BULLET_SPAWN:
+                return new BulletSpawnEvent().CreateEvent(data);
+            case (byte)Commands.GAME_START:
+                return new GameStartEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_DISCONNECT:
+                return new PlayerDisconnectEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_LOAD:
+                return new PlayerLoadEvent().CreateEvent(data);
+            case (byte)Commands.PLAYER_POSITION:
                 return new PlayerPositionEvent().CreateEvent(data);
-            case (byte)Commands.PLAYER_DAMAGE:
-                return new PlayerDamageEvent().CreateEvent(data);
+            case (byte)Commands.PONG:
+                return new PongEvent().CreateEvent(data);
+            case (byte)Commands.ROOM_JOIN:
+                return new RoomJoinEvent().CreateEvent(data);
             default:
                 return null;
         }
